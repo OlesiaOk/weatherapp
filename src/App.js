@@ -1,74 +1,88 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import "./App.css";
 export default function Weather() {
-  let weatherData = {
-    city: "Kyiv",
-    temperature: 22,
-    date: "Tuesday 10:00",
-    description: "Cloudy",
-    imgUrl: "http://openweathermap.org/img/wn/02d@2x.png",
-    humidity: 55,
-    wind: 5,
-  };
-  return (
-    <div className="weather-app">
-      <h1>{weatherData.city}</h1>
-      <ul>
-        <li>Thu, 26 May 15:25</li>
-      </ul>
-      <h2>
-        <span>{weatherData.temperature}</span> <a href="/">℃</a> |{" "}
-        <a href="/">℉</a>
-        <img src={weatherData.imgUrl} alt="Clear" />
-      </h2>
-      <h3>
-        <ul>
-          <li>Humidity: {weatherData.humidity} %</li>
-          <li>Wind:{weatherData.wind} km/h</li>
-          <li>
-            <span>{weatherData.description}</span>
-          </li>
-        </ul>
-      </h3>
+  const [weatherDate, setWeatherDate] = useState({ ready: false });
+  function handleResponse(response) {
+    setWeatherDate({
+      ready: true,
+      temperature: response.data.main.temp,
+      description: response.data.weather[0].description,
+      icon: response.data.weather[0].icon,
+      wind: response.data.wind.speed,
+      city: response.data.name,
+      humidity: response.data.main.humidity,
+      date: "Wednesday, 18:00",
+    });
+  }
 
-      <div className="input-group mb-3">
-        <form className="search-form">
-          <div className="row">
-            <div className="col"></div>
-            <div className="col-6">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Enter your city"
-                aria-label="City"
-                aria-describedby="button-addon2"
-              />
+  if (weatherDate.ready) {
+    return (
+      <div className="weather-app">
+        <h1>{weatherDate.city}</h1>
+        <ul>
+          <li>{weatherDate.date}</li>
+        </ul>
+        <h2>
+          <span>{Math.round(weatherDate.temperature)}</span> <a href="/">℃</a> |{" "}
+          <a href="/">℉</a>
+          <img src={weatherDate.icon} alt="Clear" />
+        </h2>
+        <h3>
+          <ul>
+            <li>Humidity: {weatherDate.humidity} %</li>
+            <li>Wind:{weatherDate.wind} km/h</li>
+            <li className="text-capitalize">
+              <span>{weatherDate.description}</span>
+            </li>
+          </ul>
+        </h3>
+
+        <div className="input-group mb-3">
+          <form className="search-form">
+            <div className="row">
+              <div className="col"></div>
+              <div className="col-6">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter your city"
+                  aria-label="City"
+                  aria-describedby="button-addon2"
+                />
+              </div>
+              <div className="col-2">
+                <button className="btn btn-outline-secondary" type="submit">
+                  Search
+                </button>
+              </div>
+              <div className="col-2">
+                <button className="btn btn-success ">Current location </button>
+              </div>
+              <div className="col"></div>
             </div>
-            <div className="col-2">
-              <button className="btn btn-outline-secondary" type="submit">
-                Search
-              </button>
-            </div>
-            <div className="col-2">
-              <button className="btn btn-success ">Current location </button>
-            </div>
-            <div className="col"></div>
-          </div>
-        </form>
+          </form>
+        </div>
+        <p className="link mt-5">
+          <small>
+            <a
+              href="https://github.com/OlesiaOk/weatherapp"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {" "}
+              Open source code{" "}
+            </a>{" "}
+            by Olesia Okhrimenko
+          </small>
+        </p>
       </div>
-      <p className="link mt-5">
-        <small>
-          <a
-            href="https://github.com/OlesiaOk/weatherapp"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {" "}
-            Open source code{" "}
-          </a>{" "}
-          by Olesia Okhrimenko
-        </small>
-      </p>
-    </div>
-  );
+    );
+  } else {
+    const apiKey = "3b6b66f380d0f8c6b4889aa8f7d07c34";
+    let city = "Kyiv";
+    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=3b6b66f380d0f8c6b4889aa8f7d07c34&units=metric`;
+    axios.get(url).then(handleResponse);
+    return "Loading...";
+  }
 }
